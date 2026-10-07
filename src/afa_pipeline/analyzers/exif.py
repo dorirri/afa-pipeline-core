@@ -104,6 +104,8 @@ def _clean(value: Any) -> Any:
         return [_clean(v) for v in value]
     try:
         number = float(value)
+    except ZeroDivisionError:
+        return None
     except (TypeError, ValueError):
         return str(value)
     return number if math.isfinite(number) else None
