@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "dorirri" }]
 requires-python = ">=3.10"
 dependencies = [
-    "Pillow>=10.4,<13",
+    "Pillow>=11.1,<13",
 ]
 keywords = ["digital-forensics", "exif", "android", "provenance", "audit-log"]
 classifiers = [
