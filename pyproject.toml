@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "afa-pipeline-core"
+version = "0.1.0"
+description = "Core modules of the Android Forensic Analysis Pipeline: read-only ingestion, EXIF anomaly analysis, plugin registry and a hash-chained audit log."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "dorirri" }]
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow>=10.4,<13",
+]
+keywords = ["digital-forensics", "exif", "android", "provenance", "audit-log"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.10",
+    "mypy==2.4.0",
+    "pre-commit==4.6.2",
+    "build==1.6.1",
+]
+
+[project.scripts]
+afa = "afa_pipeline.cli:main"
+
+[project.urls]
+Repository = "https://github.com/dorirri/afa-pipeline-core"
+Issues = "https://github.com/dorirri/afa-pipeline-core/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+afa_pipeline = ["py.typed"]

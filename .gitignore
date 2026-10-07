@@ -1,0 +1,68 @@
+# Images
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+*.PNG
+*.heic
+*.HEIC
+*.dng
+*.tif
+*.tiff
+*.webp
+*.gif
+*.bmp
+# Disk images / acquisitions
+*.img
+*.dd
+*.E01
+*.raw
+*.apk
+# Evidence and case folders
+evidence/
+cases/
+case_*/
+samples/
+# Pipeline outputs
+*.jsonl
+results*.json
+audit*.log
+
+# Secrets
+.env
+*.env
+*.pem
+*.key
+
+# Model weights
+*.pt
+*.pth
+*.weights
+*.onnx
+*.h5
+*.ckpt
+*.safetensors
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
