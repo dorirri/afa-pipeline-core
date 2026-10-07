@@ -172,6 +172,8 @@ class AuditLog:
                 )
             self._seq = result.records
             self._head = result.head
+        else:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
 
     @property
     def head(self) -> str:

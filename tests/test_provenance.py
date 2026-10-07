@@ -201,3 +201,11 @@ def test_refuses_to_extend_tampered_log(tmp_path: Path) -> None:
 def test_verify_missing_file_raises(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         verify(tmp_path / "missing.jsonl")
+
+
+def test_parent_directory_is_created(tmp_path: Path) -> None:
+    path = tmp_path / "logs" / "case-1" / "audit.jsonl"
+
+    AuditLog(path).append("ingest")
+
+    assert verify(path).records == 1
