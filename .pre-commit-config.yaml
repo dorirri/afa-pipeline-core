@@ -26,4 +26,4 @@ repos:
       - id: mypy
         args: []
         pass_filenames: false
-        additional_dependencies: ["Pillow>=10.4,<13", "pytest==9.1.1"]
+        additional_dependencies: ["Pillow>=11.1,<13", "pytest==9.1.1"]

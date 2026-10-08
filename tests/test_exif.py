@@ -230,6 +230,27 @@ def test_no_gps_block_is_not_an_anomaly(make_image: ImageFactory) -> None:
     assert "exif.gps_malformed" not in rules(result)
 
 
+class _RaisingRational:
+    """Behaves like a zero-denominator rational on Pillow < 12.3."""
+
+    def __float__(self) -> float:
+        raise ZeroDivisionError("division by zero")
+
+
+def test_zero_denominator_that_raises_is_handled() -> None:
+    gps = {1: "N", 2: (_RaisingRational(), 15.0, 30.0), 3: "E", 4: (76.0, 57.0, 0.0)}
+
+    position, problems = parse_gps(gps)
+
+    assert position is None
+    assert any("zero-denominator" in p for p in problems)
+    assert MetadataAnalyzer._gps_finding(gps, problems).evidence["raw"]["GPSLatitude"] == [
+        None,
+        15.0,
+        30.0,
+    ]
+
+
 def test_parse_gps_rejects_text_coordinates() -> None:
     position, problems = parse_gps({1: "N", 2: "43,15,30", 3: "E", 4: (76.0, 57.0, 0.0)})
 
