@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-09
+
 ### Fixed
 
 - Docker image is now published for `linux/amd64` and `linux/arm64`; `v0.1.0` was
@@ -41,5 +43,6 @@ First public release of the AFA-Pipeline core modules.
 - Zero-denominator GPS rationals on Pillow < 12.3 were reported as an analyzer
   error instead of an `exif.gps_malformed` finding (#9).
 
-[Unreleased]: https://github.com/dorirri/afa-pipeline-core/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/dorirri/afa-pipeline-core/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/dorirri/afa-pipeline-core/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dorirri/afa-pipeline-core/releases/tag/v0.1.0
