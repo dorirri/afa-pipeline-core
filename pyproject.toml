@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "afa-pipeline-core"
-version = "0.1.0"
+version = "0.1.1"
 description = "Core modules of the Android Forensic Analysis Pipeline: read-only ingestion, EXIF anomaly analysis, plugin registry and a hash-chained audit log."
 readme = "README.md"
 license = "MIT"

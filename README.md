@@ -87,7 +87,7 @@ pip install .                    # or: pip install -e ".[dev]" for development
 Or install a released wheel from the [Releases page](https://github.com/dorirri/afa-pipeline-core/releases):
 
 ```bash
-pip install afa_pipeline_core-0.1.0-py3-none-any.whl
+pip install afa_pipeline_core-0.1.1-py3-none-any.whl
 ```
 
 Or use the Docker image:
