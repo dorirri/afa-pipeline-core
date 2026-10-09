@@ -201,7 +201,7 @@ group and load them with `default_registry.load_entry_points()`.
 
 ```bash
 pip install -e ".[dev]"
-pytest --cov                     # 114 tests, fails under 85 % coverage
+pytest --cov                     # fails under 85 % coverage
 ruff check . && ruff format --check .
 mypy
 pre-commit install               # run the same checks on every commit

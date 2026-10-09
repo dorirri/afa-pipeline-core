@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-08
+
+First public release of the AFA-Pipeline core modules.
+
 ### Added
 
 - Read-only evidence ingestion with chunked SHA-256 hashing and deterministic
@@ -32,4 +36,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero-denominator GPS rationals on Pillow < 12.3 were reported as an analyzer
   error instead of an `exif.gps_malformed` finding (#9).
 
-[Unreleased]: https://github.com/dorirri/afa-pipeline-core/commits/main
+[Unreleased]: https://github.com/dorirri/afa-pipeline-core/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/dorirri/afa-pipeline-core/releases/tag/v0.1.0
