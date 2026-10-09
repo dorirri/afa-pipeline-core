@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Docker image is now published for `linux/amd64` and `linux/arm64`; `v0.1.0` was
+  amd64-only and could not be pulled on Apple Silicon without `--platform`.
+
 ## [0.1.0] - 2026-10-08
 
 First public release of the AFA-Pipeline core modules.
