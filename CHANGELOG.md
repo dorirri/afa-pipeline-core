@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Docker image is now published for `linux/amd64` and `linux/arm64`; `v0.1.0` was
   amd64-only and could not be pulled on Apple Silicon without `--platform`.
+- Release workflow publishes the Docker image only after the tag/version check and
+  package build succeed.
 
 ## [0.1.0] - 2026-10-08
 

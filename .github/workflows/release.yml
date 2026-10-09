@@ -82,7 +82,7 @@ jobs:
 
   docker:
     name: Docker image (GHCR)
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
