@@ -1,0 +1,42 @@
+jenkins:
+  systemMessage: "afa-pipeline-core: local CI/CD (tests, Docker image, deploy to Minikube)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "${JENKINS_URL:-http://localhost:8080/}"
+
+jobs:
+  - script: >
+      pipelineJob('afa-pipeline-core') {
+        description('Runs on every commit to ${REPO_BRANCH}: lint, type check, unit tests, Docker image, deploy to Minikube.')
+        properties {
+          githubProjectUrl('https://github.com/dorirri/afa-pipeline-core/')
+          pipelineTriggers {
+            triggers {
+              githubPush()
+              pollSCM { scmpoll_spec('H/5 * * * *') }
+            }
+          }
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('${REPO_URL}') }
+                branch('${REPO_BRANCH}')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
