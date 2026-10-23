@@ -26,7 +26,6 @@ def test_hash_matches_hashlib(tmp_path: Path) -> None:
 def test_hash_of_empty_file(tmp_path: Path) -> None:
     target = tmp_path / "empty.bin"
     target.write_bytes(b"")
-
     assert sha256_file(target) == (hashlib.sha256(b"").hexdigest(), 0)
 
 
