@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Jenkins pipeline (`Jenkinsfile`) with a local Jenkins + Minikube stand in `jenkins/`:
+  lint, type check, unit tests, Docker image, smoke test and deployment as a Kubernetes
+  Job (`k8s/job.yaml`).
+
+### Changed
+
+- CI runs on pushes to every branch and builds and smoke-tests the Docker image on each
+  commit, not only on release tags.
+
 ## [0.1.1] - 2026-10-09
 
 ### Fixed

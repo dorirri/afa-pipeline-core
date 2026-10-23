@@ -1,0 +1,52 @@
+# One-off analysis run of the CLI in Kubernetes. The Jenkins "Deploy" stage
+# replaces IMAGE with the tag it just built and loaded into Minikube.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: afa-analyze
+  labels:
+    app.kubernetes.io/name: afa-pipeline-core
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: afa-pipeline-core
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: afa
+          image: IMAGE
+          imagePullPolicy: Never
+          command: ["sh", "-ec"]
+          # Two synthetic images (one edited, one without EXIF), then analyse
+          # them and verify the hash chain of the audit log.
+          args:
+            - |
+              afa --version
+              mkdir -p /work/evidence
+              python -c '
+              from PIL import Image
+              img = Image.new("RGB", (64, 64), "gray")
+              exif = img.getexif()
+              exif[0x010F] = "Google"
+              exif[0x0110] = "Pixel 8"
+              exif[0x0131] = "Adobe Photoshop 25.0"
+              img.save("/work/evidence/edited.jpg", exif=exif)
+              Image.new("RGB", (64, 64), "white").save("/work/evidence/no_exif.jpg")
+              '
+              afa analyze /work/evidence --out /work/results.json --log /work/audit.jsonl
+              afa verify-log /work/audit.jsonl
+          volumeMounts:
+            - name: work
+              mountPath: /work
+          resources:
+            requests: { cpu: 100m, memory: 64Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+      volumes:
+        - name: work
+          emptyDir: {}

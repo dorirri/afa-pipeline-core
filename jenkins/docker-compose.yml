@@ -1,0 +1,34 @@
+# Start with ./jenkins/up.sh (it creates .env and the kubeconfig first).
+services:
+  jenkins:
+    build: .
+    image: afa-jenkins:local
+    container_name: afa-jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    # The Docker socket is root:root 0660 inside containers; group 0 lets the
+    # jenkins user reach it without running the controller as root.
+    group_add: ["0"]
+    env_file: .env
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      CASC_JENKINS_CONFIG: /casc/jenkins.yaml
+      KUBECONFIG: /kube/config
+      REPO_URL: ${REPO_URL:-https://github.com/dorirri/afa-pipeline-core.git}
+      REPO_BRANCH: ${REPO_BRANCH:-*/main}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./casc:/casc:ro
+      - ./kubeconfig:/kube/config:ro
+    networks: [default, minikube]
+
+volumes:
+  jenkins_home:
+
+networks:
+  # Created by `minikube start --driver=docker`; joining it lets kubectl reach
+  # the API server at https://minikube:8443.
+  minikube:
+    external: true
