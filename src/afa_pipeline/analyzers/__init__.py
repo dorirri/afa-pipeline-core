@@ -2,6 +2,7 @@
 
 from afa_pipeline.analyzers.base import AnalysisResult, AnalysisStatus, Analyzer, Finding
 from afa_pipeline.analyzers.exif import MetadataAnalyzer
+from afa_pipeline.analyzers.integrity import IntegrityAnalyzer
 from afa_pipeline.analyzers.registry import (
     AnalyzerRegistry,
     DuplicateAnalyzerError,
@@ -17,6 +18,7 @@ __all__ = [
     "AnalyzerRegistry",
     "DuplicateAnalyzerError",
     "Finding",
+    "IntegrityAnalyzer",
     "MetadataAnalyzer",
     "UnknownAnalyzerError",
     "default_registry",

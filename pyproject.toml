@@ -37,10 +37,17 @@ dev = [
     "pre-commit==4.6.2",
     "build==1.6.1",
     "piexif==1.1.3",
+    "afa-pipeline-core[integrity]",
 ]
 # Synthetic demo-image generator (scripts/image_generator.py).
 demo = [
     "piexif==1.1.3",
+]
+# ELA + JPEG ghost analyzer ported from the prototype.
+integrity = [
+    "numpy>=1.26,<3",
+    "scipy>=1.11,<2",
+    "matplotlib>=3.8,<4",
 ]
 
 [project.scripts]
@@ -65,6 +72,9 @@ addopts = ["-ra", "--strict-markers", "--strict-config"]
 [tool.coverage.run]
 source = ["afa_pipeline"]
 branch = true
+# Ported prototype code is kept verbatim, including its own report writer and CLI that
+# the pipeline does not call. It is exercised through the typed adapters and their tests.
+omit = ["*/afa_pipeline/analyzers/legacy/*"]
 
 [tool.coverage.report]
 fail_under = 85
@@ -100,9 +110,20 @@ convention = "google"
 "tests/*" = ["D", "S101"]
 # Synthetic test-data generator: `random` is used for fake data, not for security.
 "scripts/image_generator.py" = ["S311"]
+# Code ported from the original prototype is kept as close to the original as possible.
+"src/afa_pipeline/analyzers/legacy/*" = ["D", "E501", "B006"]
 
 [tool.mypy]
 python_version = "3.10"
 strict = true
 files = ["src", "tests"]
 warn_unreachable = true
+
+[[tool.mypy.overrides]]
+# Ported prototype code is untyped; its typed adapters are checked strictly.
+module = ["afa_pipeline.analyzers.legacy.*"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "matplotlib.*"]
+ignore_missing_imports = true

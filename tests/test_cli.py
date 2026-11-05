@@ -33,10 +33,14 @@ def evidence_dir(tmp_path: Path) -> Path:
     return root
 
 
-def run_cli(evidence: Path, out_dir: Path) -> tuple[int, dict[str, Any], Path]:
+def run_cli(
+    evidence: Path, out_dir: Path, analyzers: tuple[str, ...] = ("exif",)
+) -> tuple[int, dict[str, Any], Path]:
+    """Run ``afa analyze``; pinned to the EXIF analyzer so CLI mechanics stay predictable."""
     out = out_dir / "results.json"
     log = out_dir / "audit.jsonl"
-    code = main(["analyze", str(evidence), "--out", str(out), "--log", str(log)])
+    selection = [arg for name in analyzers for arg in ("--analyzer", name)]
+    code = main(["analyze", str(evidence), "--out", str(out), "--log", str(log), *selection])
     return code, json.loads(out.read_text(encoding="utf-8")), log
 
 
@@ -222,7 +226,7 @@ def test_verify_log_missing_file(tmp_path: Path) -> None:
 
 def test_list_analyzers(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["analyzers"]) == 0
-    assert capsys.readouterr().out.strip() == "exif 1.0.0"
+    assert capsys.readouterr().out.strip().splitlines() == ["exif 1.0.0", "integrity 0.1.0"]
 
 
 def test_version(capsys: pytest.CaptureFixture[str]) -> None:

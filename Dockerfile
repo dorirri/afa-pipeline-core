@@ -17,9 +17,10 @@ LABEL org.opencontainers.image.title="afa-pipeline-core" \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    MPLCONFIGDIR=/tmp/matplotlib
 COPY --from=build /dist/*.whl /tmp/
-RUN pip install /tmp/*.whl && rm /tmp/*.whl \
+RUN pip install "$(ls /tmp/*.whl)[integrity]" && rm /tmp/*.whl \
     && useradd --create-home --uid 10001 afa
 USER afa
 WORKDIR /home/afa

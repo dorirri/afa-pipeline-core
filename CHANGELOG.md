@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/image_generator.py`: synthetic Android photo generator ported from the
   original prototype (fake device, time and GPS EXIF, `--seed` for reproducible
   sets); `piexif` added to the `dev` and new `demo` extras.
+- `integrity` analyzer: Error Level Analysis and JPEG ghost ported from the original
+  prototype (`analyzers/legacy/image_integrity.py`, algorithms unchanged) behind a typed
+  adapter; rules `integrity.ela` and `integrity.jpeg_ghost`. New `integrity` extra
+  (numpy, scipy, matplotlib), installed in the Docker image.
 
 ### Changed
 
