@@ -7,15 +7,21 @@
 
 Core modules of the **Android Forensic Analysis Pipeline (AFA-Pipeline)**, a diploma
 project that analyses images recovered from Android devices for digital-forensic
-investigations. This repository contains the first, fully tested building blocks:
+investigations. This repository contains the following tested building blocks:
 
 | Module | Requirement | What it does |
 |---|---|---|
 | `afa_pipeline.ingestion` | FR1 | Read-only intake of evidence files, SHA-256 hash, `EvidenceItem` |
 | `afa_pipeline.analyzers.exif` | FR2 | EXIF extraction (device, timestamps, GPS) and anomaly detection |
+| `afa_pipeline.analyzers.integrity` | FR3 | Error Level Analysis + JPEG ghost (manipulation indicators) |
+| `afa_pipeline.analyzers.ocr` | FR4 | Tesseract text extraction (Kazakh, Russian, English) |
+| `afa_pipeline.analyzers.cv` | FR5 | YOLO objects of forensic interest, faces, scene (local weights) |
+| `afa_pipeline.geo_timeline` | FR6 | Case-level route, location clusters and timeline anomalies |
+| `afa_pipeline.verdict` | FR7 | Explainable per-file and per-case verdict (ALERT / CAUTION / PASSED) |
 | `afa_pipeline.analyzers.base` / `registry` | FR9 | `Analyzer` plugin interface and registry |
 | `afa_pipeline.provenance` | FR8 | Append-only, hash-chained JSON Lines audit log with `verify()` |
-| `afa_pipeline.cli` | — | `afa analyze`, `afa verify-log`, `afa analyzers` |
+| `afa_pipeline.cli` | — | `afa analyze`, `afa geo-timeline`, `afa verdict`, `afa verify-log`, `afa analyzers` |
+| `scripts/image_generator.py` | — | Synthetic test images with EXIF/GPS (no real data) |
 
 > **No real evidence data.** This repository contains no real photographs, case data,
 > personal data, credentials or model weights. Every image used by the tests is
@@ -34,22 +40,23 @@ parts shown in green below:
 flowchart LR
     A[Recovered images<br/>read-only] --> B[Ingestion & SHA-256]
     B --> R{{Analyzer registry}}
-    R --> E[EXIF / metadata analyzer]
-    R -.-> CV[Computer-vision analyzer]
-    R -.-> OCR[OCR analyzer]
-    E --> C[Correlation & scoring]
-    CV -.-> C
-    OCR -.-> C
-    E --> O[JSON report]
+    R --> E[EXIF]
+    R --> I[ELA + JPEG ghost]
+    R --> OCR[OCR]
+    R --> CV[Computer vision]
+    E & I & OCR & CV --> O[JSON report]
+    O --> G[Geo-timeline]
+    O --> V[Verdict]
+    G --> V
     P[(Hash-chained audit log)]
     B -. every step .-> P
-    E -. every step .-> P
     O -. report hash .-> P
-    classDef done fill:#d4edda,stroke:#28a745,color:#000
-    class B,R,E,O,P done
+    G -. output hashes .-> P
+    V -. verdict hash .-> P
 ```
 
-Green boxes are implemented in this repository; dashed links lead to [roadmap](#roadmap) items.
+Every stage writes to the same audit log; `afa verdict` refuses a report whose hash is
+not recorded in an intact log.
 
 ## Design principles
 
@@ -125,7 +132,10 @@ detects records removed from the end of the log.
 afa verify-log out/audit.jsonl --expected-head 23b4acbc…
 # OK: 12 record(s), chain intact, head 23b4acbc…
 afa analyzers
+# cv 0.1.0
 # exif 1.0.0
+# integrity 0.1.0
+# ocr 0.1.0
 ```
 
 An excerpt of `results.json` for `IMG_0002.jpg`:
@@ -178,6 +188,44 @@ Confidence values are heuristic weights that rank findings for an investigator. 
 not calibrated probabilities. Missing EXIF, for example, is common for messenger or
 screenshot images.
 
+### Additional analyzers and case-level stages
+
+The integrity, OCR, geo-timeline and CV modules are ported from the original diploma
+prototype with minimal changes (the ported code lives in
+`afa_pipeline/analyzers/legacy/`). Each needs an optional extra; without it the analyzer
+reports `SKIP` instead of failing.
+
+| Module | Extra | Output |
+|---|---|---|
+| `integrity` | `pip install ".[integrity]"` | Findings `integrity.ela`, `integrity.jpeg_ghost` (JPEG only) |
+| `ocr` | `pip install ".[ocr]"` + Tesseract with `kaz`/`rus` packs | Extracted text in `data`; languages from `AFA_OCR_LANG` (default `kaz+rus+eng`) |
+| `cv` | `pip install ".[cv]"` + `AFA_YOLO_WEIGHTS=/path/yolov8x.pt` | Objects, forensic categories, face boxes (no encodings), scene; SHA-256 of the weights |
+| `geo-timeline` | `pip install ".[geo]"` | Map, timeline, clusters and findings `geo.high_speed`, `geo.time_gap`, `geo.night_activity` |
+| `verdict` | — | Per-file level and score with the indicators behind it, case level |
+
+```bash
+afa analyze ./evidence --out out/results.json --log out/audit.jsonl
+afa geo-timeline out/results.json --out out/geo --log out/audit.jsonl
+afa verdict out/results.json --geo out/geo/geo_timeline.json --out out/verdict.json --log out/audit.jsonl
+```
+
+The verdict combines finding confidences per file with noisy-OR, `1 − Π(1 − cᵢ)`:
+**ALERT** ≥ 0.7, **CAUTION** ≥ 0.3, otherwise **PASSED**; files no analyzer could read are
+**NOT_ANALYSED**. Scores are heuristic, not calibrated probabilities; ELA in particular
+gives false positives on noisy or recompressed photos.
+
+Synthetic evidence for demos and tests:
+
+```bash
+pip install ".[demo]"
+python scripts/image_generator.py --help
+```
+
+The Docker image includes the integrity, OCR (with Tesseract `kaz`/`rus`/`eng`) and geo
+extras. The CV analyzer is opt-in because PyTorch adds about 1 GB:
+`docker build --build-arg EXTRAS=integrity,ocr,geo,cv .`, then mount the weights and set
+`AFA_YOLO_WEIGHTS`. Model weights are never downloaded at runtime.
+
 ### Writing a new analyzer
 
 ```python
@@ -223,7 +271,11 @@ builds the sdist and wheel, creates a GitHub Release and pushes the Docker image
 | Concern | Choice |
 |---|---|
 | Language | Python ≥ 3.10 |
-| EXIF | Pillow (only runtime dependency) |
+| EXIF | Pillow (only required runtime dependency) |
+| Integrity | NumPy, SciPy, Matplotlib (extra `integrity`) |
+| OCR | Tesseract via pytesseract, OpenCV (extra `ocr`) |
+| Computer vision | Ultralytics YOLO, PyTorch CPU (extra `cv`) |
+| Geo-timeline | pandas, folium, geopy, scikit-learn (extra `geo`) |
 | Packaging | `pyproject.toml` (PEP 621) + setuptools, `src/` layout |
 | Tests | pytest + pytest-cov |
 | Lint / format | ruff |
@@ -237,13 +289,9 @@ The reasons for each choice and the alternatives considered are in
 
 ## Roadmap
 
-- **Computer-vision analyzer**: object, weapon and face detection as an `Analyzer` plugin
-  with pinned, checksummed model weights loaded from a local path (never downloaded at
-  runtime).
-- **OCR analyzer**: text extraction from screenshots and photos.
-- **Correlation & scoring**: combine findings from all analyzers per item and across
-  items (timelines, location clusters) into a ranked case view.
-- **Integrity analyzer**: error-level and JPEG-ghost analysis.
+- **AI-generation and copy-move detection**: not implemented.
+- **Calibrated scoring**: replace the heuristic confidences with weights measured on a
+  labelled dataset; reduce ELA false positives.
 - **External anchoring of the audit head**: for example signing it, or timestamping it on
   a public ledger, to protect against an attacker who rewrites the whole log.
 
