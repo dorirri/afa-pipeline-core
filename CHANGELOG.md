@@ -32,6 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the prototype's integrity grading) combining all findings with a noisy-OR, listing
   supporting indicators and analyzer limitations, and geo anomalies for the case.
   The report must be intact and recorded in the audit log; the verdict is logged.
+- `cv` analyzer: objects of forensic interest, faces and scene, ported from the original
+  prototype's `ContentAnalyzer` (`analyzers/legacy/content_analyzer.py`, categories and
+  result format unchanged). Models load from local files only: YOLO weights from
+  `AFA_YOLO_WEIGHTS` (SHA-256 recorded in every result), optional InceptionV3 from
+  `AFA_INCEPTION_WEIGHTS`. Ultralytics runs offline, without telemetry, and its
+  process-wide `PIL.Image.open` patch is undone. Only face counts and boxes are reported,
+  not face encodings. New opt-in `cv` extra; Docker: `--build-arg EXTRAS=integrity,ocr,geo,cv`.
 
 ### Fixed
 

@@ -1,6 +1,7 @@
 """Analyzer plugin interface, registry and built-in analyzers."""
 
 from afa_pipeline.analyzers.base import AnalysisResult, AnalysisStatus, Analyzer, Finding
+from afa_pipeline.analyzers.cv import CvAnalyzer
 from afa_pipeline.analyzers.exif import MetadataAnalyzer
 from afa_pipeline.analyzers.integrity import IntegrityAnalyzer
 from afa_pipeline.analyzers.ocr import OcrAnalyzer
@@ -17,6 +18,7 @@ __all__ = [
     "AnalysisStatus",
     "Analyzer",
     "AnalyzerRegistry",
+    "CvAnalyzer",
     "DuplicateAnalyzerError",
     "Finding",
     "IntegrityAnalyzer",

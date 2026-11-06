@@ -227,6 +227,7 @@ def test_verify_log_missing_file(tmp_path: Path) -> None:
 def test_list_analyzers(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["analyzers"]) == 0
     assert capsys.readouterr().out.strip().splitlines() == [
+        "cv 0.1.0",
         "exif 1.0.0",
         "integrity 0.1.0",
         "ocr 0.1.0",
