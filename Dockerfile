@@ -25,7 +25,7 @@ RUN apt-get update \
        tesseract-ocr tesseract-ocr-kaz tesseract-ocr-rus tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /dist/*.whl /tmp/
-RUN pip install "$(ls /tmp/*.whl)[integrity,ocr]" && rm /tmp/*.whl \
+RUN pip install "$(ls /tmp/*.whl)[integrity,ocr,geo]" && rm /tmp/*.whl \
     && useradd --create-home --uid 10001 afa
 USER afa
 WORKDIR /home/afa

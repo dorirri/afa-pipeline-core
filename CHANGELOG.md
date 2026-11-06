@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`analyzers/legacy/content_ocr.py`, filtering unchanged) with languages from
   `AFA_OCR_LANG` (default `kaz+rus+eng`). New `ocr` extra (pytesseract,
   opencv-python-headless); the Docker image ships Tesseract with kaz, rus and eng.
+- `afa geo-timeline`: case-level travel segments, location clusters and anomalies
+  (`geo.high_speed`, `geo.time_gap`, `geo.night_activity`) ported from the original
+  prototype (`analyzers/legacy/geo_timeline_analyzer.py`, algorithms and HTML/map
+  outputs unchanged), run on an `afa analyze` report; input report and output hashes
+  are recorded in the audit log. New `geo` extra (pandas, folium, geopy, scikit-learn).
 
 ### Fixed
 

@@ -37,7 +37,7 @@ dev = [
     "pre-commit==4.6.2",
     "build==1.6.1",
     "piexif==1.1.3",
-    "afa-pipeline-core[integrity,ocr]",
+    "afa-pipeline-core[integrity,ocr,geo]",
 ]
 # Synthetic demo-image generator (scripts/image_generator.py).
 demo = [
@@ -53,6 +53,15 @@ integrity = [
 ocr = [
     "pytesseract>=0.3.10,<0.4",
     "opencv-python-headless>=4.8,<5",
+    "numpy>=1.26,<3",
+]
+# Case-level geo-timeline ported from the prototype (afa geo-timeline).
+geo = [
+    "pandas>=2.1,<3",
+    "folium>=0.15,<1",
+    "geopy>=2.4,<3",
+    "scikit-learn>=1.3,<2",
+    "matplotlib>=3.8,<4",
     "numpy>=1.26,<3",
 ]
 
@@ -117,7 +126,7 @@ convention = "google"
 # Synthetic test-data generator: `random` is used for fake data, not for security.
 "scripts/image_generator.py" = ["S311"]
 # Code ported from the original prototype is kept as close to the original as possible.
-"src/afa_pipeline/analyzers/legacy/*" = ["D", "E501", "B006"]
+"src/afa_pipeline/analyzers/legacy/*" = ["D", "E501", "B006", "B007", "E722", "S112", "W291", "W293"]
 
 [tool.mypy]
 python_version = "3.10"

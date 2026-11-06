@@ -1,8 +1,9 @@
-"""Command-line interface: ``afa analyze`` and ``afa verify-log``.
+"""Command-line interface: ``afa analyze``, ``afa geo-timeline`` and ``afa verify-log``.
 
 Example::
 
     afa analyze ./evidence --out results.json --log audit.jsonl
+    afa geo-timeline results.json --out geo --log audit.jsonl
     afa verify-log audit.jsonl
 """
 
@@ -21,6 +22,7 @@ from typing import Any
 from afa_pipeline import __version__
 from afa_pipeline.analyzers import AnalysisStatus, default_registry
 from afa_pipeline.analyzers.registry import UnknownAnalyzerError
+from afa_pipeline.geo_timeline import GeoTimelineError, run_geo_timeline
 from afa_pipeline.ingestion import IngestionError, discover, ingest
 from afa_pipeline.provenance import AuditLog, AuditLogError, verify
 
@@ -196,6 +198,31 @@ def _cmd_verify_log(args: argparse.Namespace) -> int:
     return EXIT_FAILURE
 
 
+def _cmd_geo_timeline(args: argparse.Namespace) -> int:
+    try:
+        summary = run_geo_timeline(Path(args.report), Path(args.out), Path(args.log))
+    except GeoTimelineError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except AuditLogError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    print(
+        f"{summary['photos_with_gps_and_time']} photo(s) with GPS and time: "
+        f"{len(summary['travel_segments'])} travel segment(s), "
+        f"{len(summary['location_clusters'])} location cluster(s), "
+        f"{len(summary['anomalies'])} anomaly(ies)"
+    )
+    for anomaly in summary["anomalies"]:
+        print(f"  {anomaly['rule']}: {anomaly['message']}")
+    if summary["status"] != "ok":
+        print("not enough photos with GPS and time for travel analysis (need 2)")
+    print(f"output:     {args.out}")
+    print(f"audit log:  {args.log}")
+    print(f"audit head: {summary['audit']['head']}")
+    return EXIT_OK
+
+
 def _cmd_list(_: argparse.Namespace) -> int:
     for name in default_registry.names():
         print(f"{name} {default_registry.get(name).version}")
@@ -225,6 +252,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="run only this analyzer (repeatable; default: all)",
     )
     analyze.set_defaults(func=_cmd_analyze)
+
+    geo = sub.add_parser(
+        "geo-timeline", help="travel segments, location clusters and anomalies of a case"
+    )
+    geo.add_argument("report", help="JSON report written by 'afa analyze'")
+    geo.add_argument("--out", default="geo_timeline", help="output folder (default: %(default)s)")
+    geo.add_argument("--log", default="audit.jsonl", help="audit log (default: %(default)s)")
+    geo.set_defaults(func=_cmd_geo_timeline)
 
     verify_log = sub.add_parser("verify-log", help="check the hash chain of an audit log")
     verify_log.add_argument("log", help="audit log to verify")
