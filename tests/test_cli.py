@@ -187,7 +187,7 @@ def test_unknown_analyzer(evidence_dir: Path, tmp_path: Path) -> None:
     log = tmp_path / "a.jsonl"
     args = ["analyze", str(evidence_dir), "--out", str(out), "--log", str(log)]
 
-    assert main([*args, "--analyzer", "ocr"]) == 2
+    assert main([*args, "--analyzer", "nope"]) == 2
     assert main([*args, "--analyzer", "exif"]) == 0
 
 
@@ -226,7 +226,11 @@ def test_verify_log_missing_file(tmp_path: Path) -> None:
 
 def test_list_analyzers(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["analyzers"]) == 0
-    assert capsys.readouterr().out.strip().splitlines() == ["exif 1.0.0", "integrity 0.1.0"]
+    assert capsys.readouterr().out.strip().splitlines() == [
+        "exif 1.0.0",
+        "integrity 0.1.0",
+        "ocr 0.1.0",
+    ]
 
 
 def test_version(capsys: pytest.CaptureFixture[str]) -> None:

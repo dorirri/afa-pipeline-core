@@ -162,5 +162,5 @@ def test_cli_runs_all_registered_analyzers_by_default(tmp_path: Path) -> None:
     assert code == 0
     report = json.loads(out.read_text(encoding="utf-8"))
     results = report["items"][0]["results"]
-    assert [r["analyzer"] for r in results] == ["exif", "integrity"]
+    assert [r["analyzer"] for r in results] == ["exif", "integrity", "ocr"]
     assert {f["rule"] for f in results[1]["findings"]} == {"integrity.ela", "integrity.jpeg_ghost"}

@@ -132,8 +132,10 @@ def create_metadata_image(device_info, location_info, coords, timestamp, output_
         font = ImageFont.truetype("arial.ttf", 100)
         font_small = ImageFont.truetype("arial.ttf", 60)
     except OSError:
-        font = ImageFont.load_default()
-        font_small = font
+        # arial.ttf resolves by name only on Windows; elsewhere use Pillow's scalable
+        # built-in font at the intended sizes instead of the 10 px bitmap default.
+        font = ImageFont.load_default(size=100)
+        font_small = ImageFont.load_default(size=60)
 
     text_lines = [
         f"{device_info['make']} {device_info['model']}",
@@ -148,10 +150,12 @@ def create_metadata_image(device_info, location_info, coords, timestamp, output_
         text_bbox = draw.textbbox((100, y_offset), line, font=font_to_use)
         draw.rectangle(
             [text_bbox[0] - 20, text_bbox[1] - 10, text_bbox[2] + 20, text_bbox[3] + 10],
-            fill="black",
+            fill="white",
         )
-        draw.text((100, y_offset), line, fill="white", font=font_to_use)
-        y_offset += 80 if i == 0 else 70
+        # Dark text on a light label, one label below the other: Tesseract (OCR
+        # analyzer) does not read light-on-dark labels or overlapping lines.
+        draw.text((100, y_offset), line, fill="black", font=font_to_use)
+        y_offset = text_bbox[3] + 40
 
     lat, lon = coords
 

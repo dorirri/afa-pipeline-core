@@ -37,7 +37,7 @@ dev = [
     "pre-commit==4.6.2",
     "build==1.6.1",
     "piexif==1.1.3",
-    "afa-pipeline-core[integrity]",
+    "afa-pipeline-core[integrity,ocr]",
 ]
 # Synthetic demo-image generator (scripts/image_generator.py).
 demo = [
@@ -48,6 +48,12 @@ integrity = [
     "numpy>=1.26,<3",
     "scipy>=1.11,<2",
     "matplotlib>=3.8,<4",
+]
+# Tesseract OCR analyzer ported from the prototype (needs the tesseract program).
+ocr = [
+    "pytesseract>=0.3.10,<0.4",
+    "opencv-python-headless>=4.8,<5",
+    "numpy>=1.26,<3",
 ]
 
 [project.scripts]
@@ -125,5 +131,5 @@ module = ["afa_pipeline.analyzers.legacy.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["scipy.*", "matplotlib.*"]
+module = ["scipy.*", "matplotlib.*", "pytesseract.*", "cv2.*"]
 ignore_missing_imports = true

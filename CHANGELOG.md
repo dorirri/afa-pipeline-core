@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   prototype (`analyzers/legacy/image_integrity.py`, algorithms unchanged) behind a typed
   adapter; rules `integrity.ela` and `integrity.jpeg_ghost`. New `integrity` extra
   (numpy, scipy, matplotlib), installed in the Docker image.
+- `ocr` analyzer: Tesseract OCR ported from the original prototype
+  (`analyzers/legacy/content_ocr.py`, filtering unchanged) with languages from
+  `AFA_OCR_LANG` (default `kaz+rus+eng`). New `ocr` extra (pytesseract,
+  opencv-python-headless); the Docker image ships Tesseract with kaz, rus and eng.
+
+### Fixed
+
+- Synthetic generator: labels were drawn with a 10 px fallback font outside Windows and
+  overlapped; they now use 100/60 px dark text on light labels, readable by OCR.
 
 ### Changed
 
