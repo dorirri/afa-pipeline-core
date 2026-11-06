@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   prototype (`analyzers/legacy/geo_timeline_analyzer.py`, algorithms and HTML/map
   outputs unchanged), run on an `afa analyze` report; input report and output hashes
   are recorded in the audit log. New `geo` extra (pandas, folium, geopy, scikit-learn).
+- `afa verdict`: explainable per-file and case verdict (`ALERT` / `CAUTION` / `PASSED`,
+  the prototype's integrity grading) combining all findings with a noisy-OR, listing
+  supporting indicators and analyzer limitations, and geo anomalies for the case.
+  The report must be intact and recorded in the audit log; the verdict is logged.
 
 ### Fixed
 

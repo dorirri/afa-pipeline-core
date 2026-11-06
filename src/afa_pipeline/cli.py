@@ -1,9 +1,10 @@
-"""Command-line interface: ``afa analyze``, ``afa geo-timeline`` and ``afa verify-log``.
+"""Command-line interface: ``afa analyze``, ``geo-timeline``, ``verdict`` and ``verify-log``.
 
 Example::
 
     afa analyze ./evidence --out results.json --log audit.jsonl
     afa geo-timeline results.json --out geo --log audit.jsonl
+    afa verdict results.json --geo geo/geo_timeline.json --out verdict.json --log audit.jsonl
     afa verify-log audit.jsonl
 """
 
@@ -25,6 +26,7 @@ from afa_pipeline.analyzers.registry import UnknownAnalyzerError
 from afa_pipeline.geo_timeline import GeoTimelineError, run_geo_timeline
 from afa_pipeline.ingestion import IngestionError, discover, ingest
 from afa_pipeline.provenance import AuditLog, AuditLogError, verify
+from afa_pipeline.verdict import VerdictError, run_verdict
 
 __all__ = ["build_parser", "main", "run_analysis"]
 
@@ -223,6 +225,27 @@ def _cmd_geo_timeline(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_verdict(args: argparse.Namespace) -> int:
+    geo = Path(args.geo) if args.geo else None
+    try:
+        verdict = run_verdict(Path(args.report), Path(args.out), Path(args.log), geo)
+    except (VerdictError, AuditLogError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    for item in verdict["files"]:
+        print(f"{item['level']:<12} {item['score']:.2f}  {item['path']}")
+        for indicator in item["indicators"]:
+            print(f"    {indicator['confidence']:.2f} {indicator['rule']}: {indicator['message']}")
+    case = verdict["case"]
+    print(f"\ncase: {case['level']} ({case['explanation']})")
+    for anomaly in case["geo_anomalies"]:
+        print(f"  {anomaly['rule']}: {anomaly['message']}")
+    print("report:     verified against the audit log")
+    print(f"verdict:    {args.out}")
+    print(f"audit head: {verdict['audit']['head']}")
+    return EXIT_OK
+
+
 def _cmd_list(_: argparse.Namespace) -> int:
     for name in default_registry.names():
         print(f"{name} {default_registry.get(name).version}")
@@ -260,6 +283,15 @@ def build_parser() -> argparse.ArgumentParser:
     geo.add_argument("--out", default="geo_timeline", help="output folder (default: %(default)s)")
     geo.add_argument("--log", default="audit.jsonl", help="audit log (default: %(default)s)")
     geo.set_defaults(func=_cmd_geo_timeline)
+
+    verdict = sub.add_parser("verdict", help="explainable per-file and case verdict")
+    verdict.add_argument("report", help="JSON report written by 'afa analyze'")
+    verdict.add_argument("--geo", help="geo_timeline.json written by 'afa geo-timeline'")
+    verdict.add_argument("--out", default="verdict.json", help="verdict (default: %(default)s)")
+    verdict.add_argument(
+        "--log", default="audit.jsonl", help="audit log of the analysis (default: %(default)s)"
+    )
+    verdict.set_defaults(func=_cmd_verdict)
 
     verify_log = sub.add_parser("verify-log", help="check the hash chain of an audit log")
     verify_log.add_argument("log", help="audit log to verify")
